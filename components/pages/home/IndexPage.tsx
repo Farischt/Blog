@@ -6,7 +6,6 @@ import {
   HeroPost,
   MoreStories,
 } from 'components'
-
 import type { Post, Settings } from 'lib/sanity.queries'
 
 export interface IndexPageProps {
