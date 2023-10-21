@@ -1,7 +1,7 @@
 import 'tailwindcss/tailwind.css'
 
-import { AppProps } from 'next/app'
 import { Analytics } from '@vercel/analytics/react'
+import { AppProps } from 'next/app'
 import { lazy } from 'react'
 
 export interface SharedPageProps {
@@ -9,7 +9,7 @@ export interface SharedPageProps {
   token: string
 }
 
-const PreviewProvider = lazy(() => import('components/PreviewProvider'))
+const PreviewProvider = lazy(() => import('components/preview/PreviewProvider'))
 
 export default function App({
   Component,

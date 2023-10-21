@@ -22,7 +22,6 @@
  * 16. Redeploy with `npx vercel --prod` to apply the new environment variable
  */
 
-import { apiVersion, dataset, projectId } from 'lib/sanity.api'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {
   createClient,
@@ -31,6 +30,8 @@ import {
   type SanityDocument,
 } from 'next-sanity'
 import { parseBody, type ParsedBody } from 'next-sanity/webhook'
+
+import { apiVersion, dataset, projectId } from 'lib/sanity.api'
 
 export { config } from 'next-sanity/webhook'
 
@@ -45,7 +46,7 @@ export default async function revalidate(
     )
     if (!isValidSignature) {
       const message = 'Invalid signature'
-      console.log(message)
+      console.warn(message)
       return res.status(401).send(message)
     }
 
@@ -59,7 +60,7 @@ export default async function revalidate(
     await Promise.all(staleRoutes.map((route) => res.revalidate(route)))
 
     const updatedRoutes = `Updated routes: ${staleRoutes.join(', ')}`
-    console.log(updatedRoutes)
+    console.warn(updatedRoutes)
     return res.status(200).send(updatedRoutes)
   } catch (err) {
     console.error(err)
@@ -81,7 +82,7 @@ async function queryStaleRoutes(
   if (body._type === 'post') {
     const exists = await client.fetch(groq`*[_id == $id][0]`, { id: body._id })
     if (!exists) {
-      let staleRoutes: StaleRoute[] = ['/']
+      const staleRoutes: StaleRoute[] = ['/']
       if ((body.slug as any)?.current) {
         staleRoutes.push(`/posts/${(body.slug as any).current}`)
       }
@@ -150,7 +151,7 @@ async function queryStaleAuthorRoutes(
 
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
-    return ['/', ...slugs.map((slug) => `/posts/${slug}`)]
+    return ['/', ...slugs.map((slug: string) => `/posts/${slug}`)]
   }
 
   return []
@@ -167,5 +168,5 @@ async function queryStalePostRoutes(
 
   slugs = await mergeWithMoreStories(client, slugs)
 
-  return ['/', ...slugs.map((slug) => `/posts/${slug}`)]
+  return ['/', ...slugs.map((slug: string) => `/posts/${slug}`)]
 }

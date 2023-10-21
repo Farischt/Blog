@@ -1,3 +1,7 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from 'next-sanity'
+import { isValidSecret } from 'sanity-plugin-iframe-pane/is-valid-secret'
+
 import {
   apiVersion,
   dataset,
@@ -6,9 +10,6 @@ import {
   useCdn,
 } from 'lib/sanity.api'
 import { postBySlugQuery } from 'lib/sanity.queries'
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from 'next-sanity'
-import { isValidSecret } from 'sanity-plugin-iframe-pane/is-valid-secret'
 
 function redirectToPreview(
   res: NextApiResponse<string | void>,
