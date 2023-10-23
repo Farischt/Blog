@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 /**
  * This code is responsible for revalidating the cache when a post or author is updated.
  *
@@ -68,7 +70,7 @@ export default async function revalidate(
   }
 }
 
-type StaleRoute = '/' | `/posts/${string}`
+type StaleRoute = '/' | '/authors' | `/posts/${string}` | `/authors/${string}`
 
 async function queryStaleRoutes(
   body: Pick<
@@ -113,14 +115,32 @@ async function queryStaleRoutes(
   }
 }
 
-async function _queryAllRoutes(client: SanityClient): Promise<string[]> {
-  return await client.fetch(groq`*[_type == "post"].slug.current`)
+async function _queryAllRoutes(client: SanityClient): Promise<{
+  postSlugs: string[]
+  authorSlugs: string[]
+}> {
+  const postSlugs = (await client.fetch(
+    groq`*[_type == "post"].slug.current`,
+  )) as string[]
+  const authorSlugs = (await client.fetch(
+    groq`*[_type == "author"].slug.current`,
+  )) as string[]
+
+  return {
+    postSlugs,
+    authorSlugs,
+  }
 }
 
 async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
   const slugs = await _queryAllRoutes(client)
 
-  return ['/', ...slugs.map((slug) => `/posts/${slug}` as StaleRoute)]
+  return [
+    '/',
+    '/authors',
+    ...slugs.postSlugs.map((slug) => `/posts/${slug}` as StaleRoute),
+    ...slugs.authorSlugs.map((slug) => `/authors/${slug}` as StaleRoute),
+  ]
 }
 
 async function mergeWithMoreStories(
@@ -132,7 +152,9 @@ async function mergeWithMoreStories(
   )
   if (slugs.some((slug) => moreStories.includes(slug))) {
     const allSlugs = await _queryAllRoutes(client)
-    return [...new Set([...slugs, ...allSlugs])]
+    return [
+      ...new Set([...slugs, ...allSlugs.postSlugs, ...allSlugs.authorSlugs]),
+    ]
   }
 
   return slugs
@@ -149,9 +171,20 @@ async function queryStaleAuthorRoutes(
     { id },
   )
 
+  // If the author bio or
+  const authorsSlug = (await client.fetch(
+    groq`*[_type == "author" && _id == $id].slug.current`,
+    { id },
+  )) as string[]
+
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
-    return ['/', ...slugs.map((slug: string) => `/posts/${slug}`)]
+    return [
+      '/',
+      '/authors',
+      ...slugs.map((slug: string) => `/posts/${slug}`),
+      ...authorsSlug.map((slug: string) => `/authors/${slug}`),
+    ]
   }
 
   return []

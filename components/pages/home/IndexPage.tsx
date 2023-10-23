@@ -24,7 +24,7 @@ export function IndexPage(props: IndexPageProps) {
     <>
       <IndexPageHead settings={settings} />
 
-      <BlogLayout preview={preview} loading={loading}>
+      <BlogLayout preview={preview} loading={loading} settings={settings}>
         <BlogContainer>
           <BlogHeader title={title} description={description} level={1} />
           {heroPost && (

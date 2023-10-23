@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
+import { useRef } from 'react'
 
-// import all components from /components
 import {
   BlogContainer,
   BlogHeader,
@@ -28,6 +28,8 @@ export function PostPage(props: PostPageProps) {
   const { preview, loading, morePosts = NO_POSTS, post, settings } = props
   const { title } = settings || {}
 
+  const titleRef = useRef<HTMLHeadingElement>(null)
+
   const slug = post?.slug
 
   if (!slug && !preview) {
@@ -38,11 +40,11 @@ export function PostPage(props: PostPageProps) {
     <>
       <PostPageHead settings={settings} post={post} />
 
-      <BlogLayout preview={preview} loading={loading}>
+      <BlogLayout preview={preview} loading={loading} settings={settings}>
         <BlogContainer>
           <BlogHeader title={title} level={2} />
           {preview && !post ? (
-            <PostTitle>Loading…</PostTitle>
+            <PostTitle ref={titleRef}>Loading…</PostTitle>
           ) : (
             <>
               <article>
@@ -51,8 +53,9 @@ export function PostPage(props: PostPageProps) {
                   coverImage={post.coverImage}
                   date={post.date}
                   author={post.author}
+                  ref={titleRef}
                 />
-                <PostBody content={post.content} />
+                <PostBody content={post.content} ref={titleRef} />
               </article>
               <SectionSeparator />
               {morePosts?.length > 0 && <MoreStories posts={morePosts} />}

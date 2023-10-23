@@ -14,6 +14,45 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'bio',
+      title: 'Bio',
+      type: 'array',
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Image caption',
+              description: 'Caption displayed below the image.',
+            },
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative text',
+              description: 'Important for SEO and accessiblity.',
+            },
+          ],
+        },
+      ],
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'picture',
       title: 'Picture',
       type: 'image',

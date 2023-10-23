@@ -1,3 +1,7 @@
 .portableText a {
   @apply underline transition-colors duration-200 hover:text-success;
 }
+
+.portableText p {
+  @apply text-base leading-7 text-justify;
+}

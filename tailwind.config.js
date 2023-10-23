@@ -8,9 +8,16 @@ module.exports = {
   ],
   theme: {
     extend: {
+      zIndex: {
+        menu: 100,
+      },
       colors: {
         'accent-1': '#FAFAFA',
         'accent-2': '#EAEAEA',
+        'accent-3': '#999',
+        'accent-4': '#888',
+        'accent-5': '#666',
+        'accent-6': '#444',
         'accent-7': '#333',
         success: '#0070f3',
         cyan: '#79FFE1',
