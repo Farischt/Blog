@@ -4,12 +4,14 @@ import { Analytics } from '@vercel/analytics/react'
 import { AppProps } from 'next/app'
 import { lazy } from 'react'
 
+import { MenuProvider } from 'context'
+
 export interface SharedPageProps {
   draftMode: boolean
   token: string
 }
 
-const PreviewProvider = lazy(() => import('components/preview/PreviewProvider'))
+const PreviewProvider = lazy(() => import('context/preview'))
 
 export default function App({
   Component,
@@ -20,13 +22,17 @@ export default function App({
     <>
       {draftMode ? (
         <PreviewProvider token={token}>
-          <Component {...pageProps} />
-          <Analytics />
+          <MenuProvider>
+            <Component {...pageProps} />
+            <Analytics />
+          </MenuProvider>
         </PreviewProvider>
       ) : (
         <>
-          <Component {...pageProps} />
-          <Analytics />
+          <MenuProvider>
+            <Component {...pageProps} />
+            <Analytics />
+          </MenuProvider>
         </>
       )}
     </>

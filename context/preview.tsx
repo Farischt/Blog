@@ -3,13 +3,12 @@ import { useMemo } from 'react'
 
 import { getClient } from 'lib/sanity.client'
 
-export default function PreviewProvider({
-  children,
-  token,
-}: {
+export interface PreviewProviderProps {
   children: React.ReactNode
   token: string
-}) {
+}
+
+const PreviewProvider = ({ children, token }: PreviewProviderProps) => {
   const client = useMemo(() => getClient({ token }), [token])
   return (
     <LiveQueryProvider client={client} logger={console}>
@@ -17,3 +16,5 @@ export default function PreviewProvider({
     </LiveQueryProvider>
   )
 }
+
+export default PreviewProvider

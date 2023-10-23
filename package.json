@@ -5,10 +5,12 @@
     "build": "next build",
     "dev": "next",
     "format": "npx prettier --write . --ignore-path .gitignore --cache",
-    "lint": "next lint -- --ignore-path .gitignore",
+    "format:check": "npx prettier --check . --ignore-path .gitignore",
+    "lint": "next lint -- --ignore-path .gitignore  --max-warnings=0",
     "lint:fix": "npm run format && npm run lint -- --fix",
     "start": "next start",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install"
   },
   "prettier": {
     "semi": false,
@@ -22,9 +24,11 @@
     "@vercel/analytics": "^1.1.1",
     "@vercel/og": "0.5.19",
     "classnames": "2.3.2",
+    "clsx": "^2.0.0",
     "date-fns": "2.30.0",
     "intl-segmenter-polyfill": "0.4.4",
     "next": "13.5.5",
+    "next-images": "^1.8.5",
     "next-sanity": "5.5.8",
     "next-sanity-image": "6.1.0",
     "react": "18.2.0",
@@ -36,6 +40,7 @@
     "swr": "2.2.4"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@types/react": "18.2.29",
     "@types/styled-components": "5.1.28",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
@@ -52,15 +57,16 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "10.0.0",
     "eslint-plugin-tailwindcss": "^3.12.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "eslint-plugin-simple-import-sort": "10.0.0",
     "postcss": "8.4.31",
     "prettier": "3.0.3",
     "prettier-plugin-packagejson": "2.4.6",
     "prettier-plugin-tailwindcss": "0.5.6",
     "tailwindcss": "3.3.3",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "husky": "^8.0.0"
   },
   "engines": {
     "node": ">=16"

@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "project": {
+    "name": "Blog",
+    "basePath": "/studio"
+  },
+  "api": {
+    "projectId": "69n2rfuh",
+    "dataset": "production"
+  }
+}
