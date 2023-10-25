@@ -190,6 +190,11 @@ async function queryStaleAuthorRoutes(
   return []
 }
 
+// Todo: Bug here:
+/*
+  Updated routes: /, /posts/understanding-the-endless-conflict-between-israel-and-palestine, /posts/reflections-on-islamic-architecture-analysis, /posts/dr-mohamed-chtatou, /posts/faris-chtatou
+
+*/
 async function queryStalePostRoutes(
   client: SanityClient,
   id: string,

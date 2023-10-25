@@ -1,3 +1,4 @@
+import { toPlainText } from '@portabletext/react'
 import Head from 'next/head'
 
 import { BlogMeta } from 'components'
@@ -11,20 +12,27 @@ export interface PostPageHeadProps {
 
 export function PostPageHead({ settings, post }: PostPageHeadProps) {
   const title = settings.title ?? 'Missing title'
+
+  const metaTitle = `${post.title} | ${title}`
+  const metaDescription =
+    toPlainText(post.content).length > 160
+      ? toPlainText(post.content).slice(0, 160) + '…'
+      : toPlainText(post.content)
+
   return (
     <Head>
-      <title>{post.title ? `${post.title} | ${title}` : title}</title>
+      <title>{metaTitle}</title>
+      <meta key="description" name="description" content={metaDescription} />
       <BlogMeta />
-      {post.coverImage?.asset?._ref && (
-        <meta
-          property="og:image"
-          content={urlForImage(post.coverImage)
-            .width(1200)
-            .height(627)
-            .fit('crop')
-            .url()}
-        />
-      )}
+
+      <meta
+        property="og:image"
+        content={urlForImage(post.coverImage)
+          .width(1200)
+          .height(627)
+          .fit('crop')
+          .url()}
+      />
     </Head>
   )
 }
