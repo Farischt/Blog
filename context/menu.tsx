@@ -32,13 +32,12 @@ export const MenuProvider = ({ children }: MenuProviderProps) => {
     const handleRouteChange = () => {
       if (open) setOpen(false)
     }
-
     router.events.on('routeChangeStart', handleRouteChange)
 
     return () => {
       router.events.off('routeChangeStart', handleRouteChange)
     }
-  }, [router])
+  }, [router, open])
 
   return (
     <MenuContext.Provider value={{ open, setOpen, changeState }}>
