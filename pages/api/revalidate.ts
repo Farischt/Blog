@@ -84,7 +84,7 @@ async function queryStaleRoutes(
   if (body._type === 'post') {
     const exists = await client.fetch(groq`*[_id == $id][0]`, { id: body._id })
     if (!exists) {
-      console.warn("document doesn't exist")
+      console.warn('document has been deleted')
       const staleRoutes: StaleRoute[] = ['/']
       if ((body.slug as any)?.current) {
         staleRoutes.push(`/posts/${(body.slug as any).current}`)
@@ -98,7 +98,7 @@ async function queryStaleRoutes(
       )
       // If there's less than 3 posts with a newer date, we need to revalidate everything
       if (moreStories < 3) {
-        console.warn('les than 3 moreStories, querying all routes')
+        console.warn('less than 3 moreStories, querying all routes')
         return [...new Set([...(await queryAllRoutes(client)), ...staleRoutes])]
       }
       return staleRoutes
@@ -107,10 +107,13 @@ async function queryStaleRoutes(
 
   switch (body._type) {
     case 'author':
+      console.warn('queryStaleAuthorRoutes', body._id)
       return await queryStaleAuthorRoutes(client, body._id)
     case 'post':
+      console.warn('queryStalePostRoutes', body._id)
       return await queryStalePostRoutes(client, body._id)
     case 'settings':
+      console.warn('queryAllRoutes')
       return await queryAllRoutes(client)
     default:
       throw new TypeError(`Unknown type: ${body._type}`)
@@ -224,13 +227,16 @@ async function queryStalePostRoutes(
     { id },
   )) as string[]
 
-  console.warn('queryStalePostRoutes slugs before merge with stories', slugs)
   const mergedSlugs = await mergeWithMoreStories(client, slugs)
-  console.warn('queryStalePostRoutes slugs after merge with stories', slugs)
+  console.warn(
+    'queryStalePostRoutes slugs after merge with stories',
+    mergeWithMoreStories,
+  )
 
   return [
     '/',
     ...mergedSlugs.slugs.map((slug) => `/posts/${slug}` as StaleRoute),
-    ...mergedSlugs.authors.map((slug) => `/authors/${slug}` as StaleRoute),
+    // Enable this to revalidate all authors when a post is updated, once the author page is implemented
+    // ...mergedSlugs.authors.map((slug) => `/authors/${slug}` as StaleRoute),
   ]
 }
