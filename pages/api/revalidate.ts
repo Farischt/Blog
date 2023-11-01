@@ -236,6 +236,7 @@ async function queryStalePostRoutes(
   return [
     '/',
     ...mergedSlugs.slugs.map((slug) => `/posts/${slug}` as StaleRoute),
+    ...mergedSlugs.posts.map((slug) => `/posts/${slug}` as StaleRoute),
     // Enable this to revalidate all authors when a post is updated, once the author page is implemented
     // ...mergedSlugs.authors.map((slug) => `/authors/${slug}` as StaleRoute),
   ]
