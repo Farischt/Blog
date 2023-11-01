@@ -13,27 +13,37 @@ export function PostPageHead({ settings, post }: PostPageHeadProps) {
   const title = settings.title ?? 'Missing title'
 
   const metaTitle = `${post.title} | ${title}`
-  const metaDescription =
-    toPlainText(post.content).length > 160
-      ? toPlainText(post.content).slice(0, 160) + '…'
+
+  const ogImageContent = `${
+    process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''
+  }/api/og?${new URLSearchParams({ slug: post.slug })}`
+  const ogUrl = `https://www.chtatou.org/posts/${post.slug}`
+  const ogTitle = `${post.title}`
+  const ogDescription =
+    toPlainText(post.content).length > 300
+      ? toPlainText(post.content).slice(0, 300) + '…'
       : toPlainText(post.content)
 
   return (
     <Head>
       <title>{metaTitle}</title>
-      <meta key="description" name="description" content={metaDescription} />
+      <meta key="description" name="description" content={ogDescription} />
+      <meta property="og:image" content={ogImageContent} />
       <BlogMeta />
 
-      <meta
-        property="og:image"
-        // Because OG images must have a absolute URL, we use the
-        // `VERCEL_URL` environment variable to get the deployment’s URL.
-        // More info:
-        // https://vercel.com/docs/concepts/projects/environment-variables
-        content={`${
-          process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''
-        }/api/og?${new URLSearchParams({ slug: post.slug })}`}
-      />
+      {/* <!-- Facebook Meta Tags --> */}
+      <meta property="og:url" content={ogUrl} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={ogTitle} />
+      <meta property="og:description" content={ogDescription} />
+
+      {/* <!-- Twitter Meta Tags --> */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta property="twitter:domain" content="chtatou.org" />
+      <meta property="twitter:url" content={ogUrl} />
+      <meta name="twitter:title" content={ogTitle} />
+      <meta name="twitter:description" content={ogDescription} />
+      <meta name="twitter:image" content={ogImageContent} />
     </Head>
   )
 }

@@ -12,10 +12,16 @@ export function IndexPageHead({ settings }: IndexPageHeadProps) {
   const { title, description, ogImage = {} } = settings
   const ogImageTitle = ogImage?.title || 'Missing title'
 
+  const ogImageContent = `${
+    process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''
+  }/api/og?${new URLSearchParams({ title: ogImageTitle })}`
+  const ogUrl = `https://www.chtatou.org`
+  const ogTitle = title
+  const ogDescription = toPlainText(description)
+
   return (
     <Head>
       <title>{title}</title>
-      <BlogMeta />
       <meta
         key="description"
         name="description"
@@ -27,10 +33,23 @@ export function IndexPageHead({ settings }: IndexPageHeadProps) {
         // `VERCEL_URL` environment variable to get the deployment’s URL.
         // More info:
         // https://vercel.com/docs/concepts/projects/environment-variables
-        content={`${
-          process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''
-        }/api/og?${new URLSearchParams({ title: ogImageTitle })}`}
+        content={ogImageContent}
       />
+      <BlogMeta />
+
+      {/* <!-- Facebook Meta Tags --> */}
+      <meta property="og:url" content={ogUrl} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={ogTitle} />
+      <meta property="og:description" content={ogDescription} />
+
+      {/* <!-- Twitter Meta Tags --> */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta property="twitter:domain" content="chtatou.org" />
+      <meta property="twitter:url" content={ogUrl} />
+      <meta name="twitter:title" content={ogTitle} />
+      <meta name="twitter:description" content={ogDescription} />
+      <meta name="twitter:image" content={ogImageContent} />
     </Head>
   )
 }
