@@ -84,6 +84,7 @@ async function queryStaleRoutes(
   if (body._type === 'post') {
     const exists = await client.fetch(groq`*[_id == $id][0]`, { id: body._id })
     if (!exists) {
+      console.warn("document doesn't exist")
       const staleRoutes: StaleRoute[] = ['/']
       if ((body.slug as any)?.current) {
         staleRoutes.push(`/posts/${(body.slug as any).current}`)
@@ -97,6 +98,7 @@ async function queryStaleRoutes(
       )
       // If there's less than 3 posts with a newer date, we need to revalidate everything
       if (moreStories < 3) {
+        console.warn('les than 3 moreStories, querying all routes')
         return [...new Set([...(await queryAllRoutes(client)), ...staleRoutes])]
       }
       return staleRoutes
@@ -135,6 +137,8 @@ async function _queryAllRoutes(client: SanityClient): Promise<{
 async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
   const slugs = await _queryAllRoutes(client)
 
+  console.warn('_queryAllRoutes', slugs)
+
   return [
     '/',
     '/authors',
@@ -144,7 +148,7 @@ async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
 }
 
 async function mergeWithMoreStories(
-  client,
+  client: SanityClient,
   slugs: string[],
 ): Promise<string[]> {
   const moreStories = await client.fetch(
@@ -154,7 +158,7 @@ async function mergeWithMoreStories(
     const allSlugs = await _queryAllRoutes(client)
     return [
       ...new Set([...slugs, ...allSlugs.postSlugs, ...allSlugs.authorSlugs]),
-    ]
+    ] as string[]
   }
 
   return slugs
@@ -164,12 +168,12 @@ async function queryStaleAuthorRoutes(
   client: SanityClient,
   id: string,
 ): Promise<StaleRoute[]> {
-  let slugs = await client.fetch(
+  let slugs = (await client.fetch(
     groq`*[_type == "author" && _id == $id] {
     "slug": *[_type == "post" && references(^._id)].slug.current
   }["slug"][]`,
     { id },
-  )
+  )) as string[]
 
   // If the author bio or
   const authorsSlug = (await client.fetch(
@@ -179,11 +183,20 @@ async function queryStaleAuthorRoutes(
 
   if (slugs.length > 0) {
     slugs = await mergeWithMoreStories(client, slugs)
+    console.warn('queryStaleAuthorRoutes slugs', slugs)
+    console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
     return [
       '/',
       '/authors',
-      ...slugs.map((slug: string) => `/posts/${slug}`),
-      ...authorsSlug.map((slug: string) => `/authors/${slug}`),
+      ...slugs.map((slug: string) => `/posts/${slug}` as StaleRoute),
+      ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
+    ]
+  } else if (authorsSlug.length > 0) {
+    console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
+    return [
+      '/',
+      '/authors',
+      ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
     ]
   }
 
