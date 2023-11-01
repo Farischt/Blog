@@ -150,74 +150,87 @@ async function queryAllRoutes(client: SanityClient): Promise<StaleRoute[]> {
 async function mergeWithMoreStories(
   client: SanityClient,
   slugs: string[],
-): Promise<string[]> {
+): Promise<{
+  slugs: string[]
+  authors: string[]
+  posts: string[]
+}> {
   const moreStories = await client.fetch(
     groq`*[_type == "post"] | order(date desc, _updatedAt desc) [0...3].slug.current`,
   )
   if (slugs.some((slug) => moreStories.includes(slug))) {
     const allSlugs = await _queryAllRoutes(client)
-    return [
-      ...new Set([...slugs, ...allSlugs.postSlugs, ...allSlugs.authorSlugs]),
-    ] as string[]
+
+    return {
+      slugs: [...new Set([...slugs])],
+      authors: allSlugs.authorSlugs,
+      posts: allSlugs.postSlugs,
+    }
   }
 
-  return slugs
+  return {
+    slugs: [...new Set([...slugs])],
+    authors: [],
+    posts: [],
+  }
 }
 
 async function queryStaleAuthorRoutes(
-  client: SanityClient,
-  id: string,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  _client: SanityClient,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  _id: string,
 ): Promise<StaleRoute[]> {
-  let slugs = (await client.fetch(
-    groq`*[_type == "author" && _id == $id] {
-    "slug": *[_type == "post" && references(^._id)].slug.current
-  }["slug"][]`,
-    { id },
-  )) as string[]
-
-  // If the author bio or
-  const authorsSlug = (await client.fetch(
-    groq`*[_type == "author" && _id == $id].slug.current`,
-    { id },
-  )) as string[]
-
-  if (slugs.length > 0) {
-    slugs = await mergeWithMoreStories(client, slugs)
-    console.warn('queryStaleAuthorRoutes slugs', slugs)
-    console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
-    return [
-      '/',
-      '/authors',
-      ...slugs.map((slug: string) => `/posts/${slug}` as StaleRoute),
-      ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
-    ]
-  } else if (authorsSlug.length > 0) {
-    console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
-    return [
-      '/',
-      '/authors',
-      ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
-    ]
-  }
-
-  return []
+  throw new Error('queryStaleAuthorRoutes not implemented')
+  // const slugs = (await client.fetch(
+  //   groq`*[_type == "author" && _id == $id] {
+  //   "slug": *[_type == "post" && references(^._id)].slug.current
+  // }["slug"][]`,
+  //   { id },
+  // )) as string[]
+  // // If the author bio or
+  // const authorsSlug = (await client.fetch(
+  //   groq`*[_type == "author" && _id == $id].slug.current`,
+  //   { id },
+  // )) as string[]
+  // if (slugs.length > 0) {
+  //   const mergedSlugs = await mergeWithMoreStories(client, slugs)
+  //   console.warn('queryStaleAuthorRoutes slugs', slugs)
+  //   console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
+  //   console.warn("mergedSlugs", mergedSlugs)
+  //   return [
+  //     '/',
+  //     '/authors',
+  //     ...slugs.map((slug: string) => `/posts/${slug}` as StaleRoute),
+  //     ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
+  //   ]
+  // } else if (authorsSlug.length > 0) {
+  //   console.warn('queryStaleAuthorRoutes authorsSlug', authorsSlug)
+  //   return [
+  //     '/',
+  //     '/authors',
+  //     ...authorsSlug.map((slug: string) => `/authors/${slug}` as StaleRoute),
+  //   ]
+  // }
+  // return []
 }
 
-// Todo: Bug here:
-/*
-  Updated routes: /, /posts/understanding-the-endless-conflict-between-israel-and-palestine, /posts/reflections-on-islamic-architecture-analysis, /posts/dr-mohamed-chtatou, /posts/faris-chtatou
-
-*/
 async function queryStalePostRoutes(
   client: SanityClient,
   id: string,
 ): Promise<StaleRoute[]> {
-  let slugs = await client.fetch(
+  const slugs = (await client.fetch(
     groq`*[_type == "post" && _id == $id].slug.current`,
     { id },
-  )
+  )) as string[]
 
-  slugs = await mergeWithMoreStories(client, slugs)
+  console.warn('queryStalePostRoutes slugs before merge with stories', slugs)
+  const mergedSlugs = await mergeWithMoreStories(client, slugs)
+  console.warn('queryStalePostRoutes slugs after merge with stories', slugs)
 
-  return ['/', ...slugs.map((slug: string) => `/posts/${slug}`)]
+  return [
+    '/',
+    ...mergedSlugs.slugs.map((slug) => `/posts/${slug}` as StaleRoute),
+    ...mergedSlugs.authors.map((slug) => `/authors/${slug}` as StaleRoute),
+  ]
 }
