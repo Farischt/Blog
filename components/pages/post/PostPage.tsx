@@ -58,7 +58,9 @@ export function PostPage(props: PostPageProps) {
                 <PostBody content={post.content} ref={titleRef} />
               </article>
               <SectionSeparator />
-              {morePosts?.length > 0 && <MoreStories posts={morePosts} />}
+              {morePosts?.length > 0 && (
+                <MoreStories title="Related Posts" posts={morePosts} />
+              )}
             </>
           )}
         </BlogContainer>

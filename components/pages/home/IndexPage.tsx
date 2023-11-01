@@ -37,7 +37,9 @@ export function IndexPage(props: IndexPageProps) {
               excerpt={heroPost.excerpt}
             />
           )}
-          {morePosts.length > 0 && <MoreStories posts={morePosts} />}
+          {morePosts.length > 0 && (
+            <MoreStories posts={morePosts} showScrollIcon />
+          )}
         </BlogContainer>
       </BlogLayout>
     </>
