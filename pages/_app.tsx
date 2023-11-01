@@ -1,4 +1,4 @@
-import 'tailwindcss/tailwind.css'
+import 'styles/global.css'
 
 import { Analytics } from '@vercel/analytics/react'
 import { AppProps } from 'next/app'
