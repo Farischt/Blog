@@ -1,3 +1,4 @@
+import { Transition } from '@headlessui/react'
 import { PortableText } from '@portabletext/react'
 import Link from 'next/link'
 
@@ -18,25 +19,30 @@ export const BlogHeader = ({ title, description, level }: Props) => {
   switch (level) {
     case 1:
       return (
-        <header
-          className={`mb-10 ${
-            !open ? 'mt-16' : 'mt-4'
-          }  flex flex-col items-end md:mb-12`}
-        >
-          {!open && (
-            <MenuIcon
-              fill={'#000000'}
-              className="h-8 w-8 cursor-pointer"
-              onClick={changeState}
-            />
-          )}
-          <div className="flex flex-col items-center md:flex-row md:justify-between">
-            <h1 className="text-6xl font-bold leading-tight tracking-tighter md:pr-8 md:text-8xl">
-              {title}
-            </h1>
-            <h4
-              className={`mt-5 text-lg md:pl-8 md:text-left ${styles.portableText}`}
-            >
+        <header className="mb-10 mt-8 flex flex-col items-end md:mb-12">
+          <div className="flex flex-col items-start">
+            <div className="flex w-full items-center justify-between">
+              <h1 className="text-6xl font-bold leading-tight tracking-tighter md:pr-8 md:text-8xl">
+                {title}
+              </h1>
+              <Transition
+                show={!open}
+                enter="transition-all duration-700 ease"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition-all duration-700 ease"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <MenuIcon
+                  fill={'#000000'}
+                  className="h-8 w-8 cursor-pointer"
+                  onClick={changeState}
+                />
+              </Transition>
+            </div>
+
+            <h4 className={`mt-5 text-lg md:text-left ${styles.portableText}`}>
               <PortableText value={description} />
             </h4>
           </div>
@@ -46,23 +52,27 @@ export const BlogHeader = ({ title, description, level }: Props) => {
     case 2:
       return (
         <>
-          <header
-            className={`mb-20 ${
-              !open ? 'mt-16' : 'mt-4'
-            } flex items-center justify-between`}
-          >
+          <header className="mb-20 mt-8 flex items-center justify-between">
             <h2 className="text-6xl font-bold leading-tight tracking-tighter md:pr-8 md:text-8xl">
               <Link href="/" className="hover:underline">
                 {title}
               </Link>
             </h2>
-            {!open && (
+            <Transition
+              show={!open}
+              enter="transition-all duration-700 ease"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-all duration-700 ease"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
               <MenuIcon
                 fill={'#000000'}
                 className="h-8 w-8 cursor-pointer"
                 onClick={changeState}
               />
-            )}
+            </Transition>
           </header>
           <SectionSeparator size="small" />
         </>

@@ -1,5 +1,7 @@
+import { Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import CrossIcon from 'assets/icons/cross.svg'
 import { AlertBanner, BlogContainer, SectionSeparator } from 'components'
@@ -36,17 +38,40 @@ export const BlogLayout = ({ preview, loading, children, settings }: Props) => {
   const router = useRouter()
   const { open, changeState } = useMenu()
 
-  const isActive = (href: string) => {
-    return router.pathname === href
-  }
+  const [_, setUlRefHeight] = useState(0)
+  const ulRef = useRef(null)
+
+  const isActive = useCallback(
+    (href: string) => {
+      return href === router.pathname
+    },
+    [router],
+  )
+
+  useEffect(() => {
+    if (ulRef.current) {
+      setUlRefHeight(ulRef.current.offsetHeight)
+    }
+  }, [ulRef])
 
   return (
     <>
       <div className="min-h-screen">
-        {open && (
-          <BlogContainer>
-            <nav className="mt-16 flex items-center justify-between">
-              <ul className="flex items-center justify-start gap-[12px]">
+        <BlogContainer>
+          <Transition
+            show={open}
+            enter="transition-all duration-700 ease"
+            enterFrom="w-full h-0 mt-0 opacity-0"
+            enterTo={`w-full h-[121px] mt-8 opacity-100`}
+            leave="transition-all duration-700 ease"
+            leaveFrom="w-full h-[121px] mt-8 opacity-100"
+            leaveTo="w-full h-0 mt-0 opacity-0"
+          >
+            <nav className="flex items-start justify-between">
+              <ul
+                ref={ulRef}
+                className="flex flex-col items-start justify-start gap-[2px]"
+              >
                 {links.map(({ href, label }) => (
                   <h3
                     key={`${href}${label}`}
@@ -59,16 +84,15 @@ export const BlogLayout = ({ preview, loading, children, settings }: Props) => {
                 ))}
               </ul>
 
-              {open && (
-                <CrossIcon
-                  fill={'#000000'}
-                  className="h-10 w-10 cursor-pointer"
-                  onClick={changeState}
-                />
-              )}
+              <CrossIcon
+                fill="#000000"
+                className="h-10 w-10 cursor-pointer"
+                onClick={changeState}
+              />
             </nav>
-          </BlogContainer>
-        )}
+          </Transition>
+        </BlogContainer>
+
         <AlertBanner preview={preview} loading={loading} />
         <main>{children}</main>
 
